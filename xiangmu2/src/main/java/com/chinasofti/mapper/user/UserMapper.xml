@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasofti.dao.user.UserDaoInf">
+
+
+                                             
+	<insert id="zhuce" parameterType="com.chinasofti.vo.user.Users">
+	    <selectKey resultType="int" keyProperty="userid" order="BEFORE">
+			select
+			user_seq.nextVal
+			from dual
+		</selectKey>
+		insert into
+		lv5
+		values(#{userid},#{username,jdbcType=VARCHAR},#{pwd,jdbcType=VARCHAR})
+	</insert>
+
+     <select  id="isLoginNamePwd"  parameterType="com.chinasofti.vo.employee.Employee"  resultType="com.chinasofti.vo.employee.Employee">
+         select * from employee where EMPLOYEE_LOGINNAME=#{employee_loginname}  and  EMPLOYEE_PASSWORD=#{employee_password} and
+         employee_status=1
+     
+     </select>
+     
+     <select  id="selectUserName" parameterType="com.chinasofti.vo.user.Users"  resultType="com.chinasofti.vo.user.Users">
+          select employee_name username
+         from employee
+         where employee_loginname =#{username}
+     </select>
+
+</mapper>

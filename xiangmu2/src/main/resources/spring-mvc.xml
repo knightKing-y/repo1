@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+<!-- 要使用spring mvc中的@Controller注解，就必须要配置<mvc:annotation-driven />，否则org.springframework.web.servlet.DispatcherServlet无法找到控制器并把请求分发到控制器 -->
+	<!-- 注解生效 mvc -->
+	<mvc:annotation-driven />
+	<!-- 自动扫描该包，使SpringMVC认为包下用了@controller注解的类是控制器 -->
+	<context:component-scan base-package="com.chinasofti.control" />
+	
+
+<!-- prefix 前缀
+	     suffix 后缀   
+	意思：控制器中访问任何一个地址，都默认加上一个前缀和一个后缀
+	   后缀不喜欢用可以删除掉这个属性
+	 -->
+	<bean  class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<!--  <property name="prefix" value="/WEB-INF/jsp/admin" />
+		<property name="suffix" value=".jsp" />-->
+	</bean>
+	
+	<!-- 静态资源 要配置下，因为拦截器也要拦截这些，配置成静态资源就不拦截了-->
+	<mvc:resources location="/js/" mapping="/js/**" />
+	<mvc:resources location="/css/" mapping="/css/**" />
+	<mvc:resources location="/images/" mapping="/images/**" />
+	<mvc:resources location="/file/" mapping="/file/**" />
+	<mvc:resources location="/js/" mapping="/js/position.js" />
+	<mvc:resources location="/js/" mapping="/js/jquery-easyui-1.4.5" />
+	
+	<!-- 配置sprinMVC拦截器 -->
+	
+	
+	<!--文件上传解析器 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!--  最大值上允许是5kb-->
+		<property name="maxUploadSize" value="90999" />
+	</bean>
+	
+	<!-- 异常解析器 -->
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">  
+		<property name="exceptionMappings">  
+			<props>	
+			    <!--<prop key="java.lang.Throwable">/book/error</prop>	
+			     如果出现 MaxUploadSizeExceededException异常 就进入WEB-INF/error/OverMaxUploadSize.jspd页面，
+			         此面页给出错误信息-->		
+				<prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">
+				 /book/OverMaxUploadSize</prop>
+            </props>  
+		</property>  
+    </bean>
+
+	
+	
+</beans>

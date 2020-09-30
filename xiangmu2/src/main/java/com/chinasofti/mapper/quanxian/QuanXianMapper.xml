@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasofti.dao.quanxian.QuanXianDaoInf">
+
+	<select id="selectOneAuth"  resultType="com.chinasofti.vo.xitong.Authority"  parameterType="int">
+		select authority.authority_id,authority.authority_name   
+		from authority
+		where    authority.authority_id  in(
+				select    authority.authority_parent_id
+				   from  authority 
+				   where authority.authority_id   in
+					   (   select a.authority_parent_id   
+					        from
+					        employee   e , 
+					        employee_role    er,
+					        role  r,
+					        role_authority  ra,
+					        authority  a
+					        where  e.employee_id=er.employee_id and er.role_id=r.role_id      and
+					               r.role_id = ra.role_id and ra.authority_id=a.authority_id   and 
+					               e.employee_id=#{0}
+				      )
+		   )   
+	</select>
+	
+	
+		<select id="selectTwoAuth"  resultType="com.chinasofti.vo.xitong.Authority"  >
+		select  authority.*   
+		from    authority   
+		where  authority.authority_id   in
+				(
+			    	select a.authority_parent_id  
+			    	from
+				        employee   e , 
+				        employee_role    er,
+				        role  r,
+				        role_authority  ra,
+				        authority  a
+				        where  e.employee_id=er.employee_id and er.role_id=r.role_id      and
+				               r.role_id = ra.role_id and ra.authority_id=a.authority_id   and 
+				               e.employee_id=#{0}
+				                )
+		   and  authority.authority_parent_id=#{1}
+	</select>
+		<select id="selectThreeAuth"  resultType="com.chinasofti.vo.xitong.Authority"  >
+		   select a.* 
+           from
+	        employee   e , 
+	        employee_role    er,
+	        role  r,
+	        role_authority  ra,
+	        authority  a
+	        where  e.employee_id=er.employee_id and er.role_id=r.role_id      and
+	               r.role_id = ra.role_id and ra.authority_id=a.authority_id   and 
+	               e.employee_id=#{0}   and a.authority_parent_id=#{1}
+	</select>
+	
+</mapper>

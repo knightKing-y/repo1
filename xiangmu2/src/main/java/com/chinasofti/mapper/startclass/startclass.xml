@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasofti.dao.startclass.StartClassDaoInf">
+
+    <select id="selectBYAREAID" resultType="com.chinasofti.vo.startclass.StartClass">
+       select e.employee_loginname employee_name ,j.class_name classroom_name,er.role_id role_id,
+      j.class_num startclass_number,e.employee_id employee_id,e.employee_num,j.class_id classroom_id
+      from employee e,employee_role er,jiaoshi j
+      where e.employee_id=er.employee_id and j.area_id=e.employee_area  and 
+      j.status=0  and e.employee_status=1  and e.employee_tech=#{0} and e.employee_area=#{1} and er.role_id in (1,2,3)
+ group by e.employee_id,e.employee_loginname  ,j.class_name,er.role_id,
+j.class_num ,e.employee_num,
+j.class_id 
+    </select>
+    
+    <insert id="addclassroom" parameterType="com.chinasofti.vo.startclass.StartClass">
+       <selectKey resultType="int" keyProperty="startclass_sid" order="BEFORE">
+			select
+			sc_seq.nextVal
+			from dual
+		</selectKey>
+        insert into startclass (STARTCLASS_SID,CLASSROOM_ID,STARTCLASS_NUMBER,STARTCLASS_TEACHER,
+        STARTCLASS_TEAHINGASSIENT,STARTCLASS_CLASSTUTOR,
+        STARTCLASS_SNATURE,STARTCLASS_STATUS,STARTCLASS_REGION,tech_id,STARTCLASS_STARTTIME,STARTCLASS_ENDTIME)
+        values(#{startclass_sid},#{classroom_id},#{startclass_number},#{startclass_teacher},
+        #{startclass_teahingassient},#{startclass_classtutor},
+        #{startclass_snature},1,#{startclass_region},#{tech_id},#{startclass_starttime},#{startclass_endtime})
+    </insert>
+    
+    <update id="updatenum" parameterType="com.chinasofti.vo.startclass.StartClass">
+     update employee set employee_num=employee_num+1 where employee_id in (#{startclass_teacher},#{startclass_teahingassient},#{startclass_classtutor})
+    </update>
+    
+    <select id="showclass" resultType="com.chinasofti.vo.startclass.StartClass">
+    <![CDATA[
+     select * from (
+      select a.*,rownum rw from(
+
+     select * from startclass sc order by  sc.startclass_sid 
+        ) a ) b
+      where rw > = #{a} and rw < #{b}
+       ]]>
+       
+       <choose>
+       <when test="r==1">
+         and STARTCLASS_TEACHER=#{e}
+       </when>
+       <when test="r==2">
+         and STARTCLASS_CLASSTUTOR=#{e}
+       </when>
+       <when test="r==3">
+        and STARTCLASS_TEAHINGASSIENT=#{e}
+       </when>
+       <otherwise>
+         and 1=1
+       </otherwise>
+     </choose>
+    </select>
+    
+    <select id="count" resultType="Integer" >
+    select count(*) from startclass
+    <choose>
+       <when test="r==1">
+         where STARTCLASS_TEACHER=#{a}
+       </when>
+       <when test="r==2">
+         where STARTCLASS_CLASSTUTOR=#{a}
+       </when>
+       <when test="r==3">
+        where STARTCLASS_TEAHINGASSIENT=#{a}
+       </when>
+       <otherwise>
+         where 1=1
+       </otherwise>
+     </choose>
+    </select>
+    
+    <select id="selcetcoerse" parameterType="int" resultType="com.chinasofti.vo.startclass.ClassCourse">
+       select * from classcourse where tech_tid=#{0} and startclass_sid =#{1} 
+    </select>
+    
+    <select id="selcetcoersenull" parameterType="int" resultType="com.chinasofti.vo.startclass.ClassCourse">
+       select * from classcourse where tech_tid=#{0} and startclass_sid is null
+    </select>
+    
+    <select id="SelectClassSys" resultType="com.chinasofti.vo.startclass.CourseSys">
+      select * from coursesys 
+    </select>
+    
+    <insert id="insertClassCourse" parameterType="com.chinasofti.vo.startclass.ClassCourse">
+    <selectKey resultType="int" keyProperty="classcourse_id" order="BEFORE">
+      select cc_seq.nextVal
+	  from dual
+    </selectKey>
+      insert into classcourse (classcourse_id,classcourse_name,classcourse_starttime,classcourse_endtime,tech_tid)
+      values(#{classcourse_id},#{classcourse_name},#{classcourse_starttime},#{classcourse_endtime},#{tech_tid})
+    </insert>
+    
+    <insert id="insertCourseSys" parameterType="com.chinasofti.vo.startclass.CourseSys">
+     <selectKey resultType="int" keyProperty="coursesys_csid" order="BEFORE">
+     select cs_seq.nextVal
+	  from dual
+     </selectKey>
+     insert into coursesys (coursesys_csid,coursesys_csname,tech_id)
+     values(#{coursesys_csid},#{coursesys_csname},#{tech_id})
+    </insert>
+    
+    <select id="coursesys_csid" parameterType="int" resultType="com.chinasofti.vo.startclass.CourseSys">
+      select * from coursesys where coursesys_csid=#{0}
+    </select>
+    
+    <select id="CourseSys_name"  resultType="com.chinasofti.vo.startclass.CourseSys">
+      select * from coursesys where coursesys_csname=#{coursesys_csname}
+    </select>
+    
+    <delete id="deleteCoursesysByid" parameterType="int">
+     delete from coursesys where coursesys_csid=#{0}
+    </delete>
+    
+    <update id="xuanke">
+     update classcourse set startclass_sid=#{a} 
+     where classcourse_id in 
+     <foreach collection="s" item="value" open="(" separator="," close=")" index="index">
+       #{value}
+     </foreach>
+    </update>
+    
+    <select id="selectClassCourseBYID" parameterType="int" resultType="com.chinasofti.vo.startclass.ClassCourse">
+     select * from classcourse where coursesys_id=#{0} and startclass_sid is null
+    </select>
+    
+    <delete id="deleteClassCourse" parameterType="com.chinasofti.vo.startclass.CourseSys">
+       delete from classcourse where coursesys_id=#{classsys_id}
+      
+    </delete>
+    <update id="updateClassCourse" parameterType="com.chinasofti.vo.startclass.ClassCourse" >
+    update classcourse set classcourse_name=#{classcourse_name},classcourse_starttime=#{classcourse_starttime},
+    classcourse_endtime=#{classcourse_endtime},tech_tid=#{tech_tid} 
+    where coursesys_id=#{classsys_id}
+    </update>
+    
+    <select id="selectCourseSysByID" resultType="com.chinasofti.vo.startclass.CourseSys">
+     select * from coursesys where coursesys_csid=#{0}
+    </select>
+    
+    <update id="updateCourseSys" parameterType="com.chinasofti.vo.startclass.CourseSys">
+        update coursesys set coursesys_csname=#{coursesys_csname},tech_id=#{tech_id}
+        where coursesys_csid=#{coursesys_csid}
+    </update>
+    
+    <update id="insertCourseSysID" parameterType="com.chinasofti.vo.startclass.CourseSys">
+       update classcourse set coursesys_id=(select coursesys_csid from coursesys where coursesys_csname=#{coursesys_csname}) 
+       where coursesys_id is null
+    </update>
+    
+    <select id="daochu" parameterType="int" resultType="com.chinasofti.vo.startclass.ClassCourse">
+     select * from classcourse where coursesys_id=#{id}
+    </select>
+    
+    <select id="selectnum" resultType="com.chinasofti.vo.jiaoshi.JiaoShi">
+      select class_num from jiaoshi where class_id=#{classroom_id}
+    </select>
+    
+    <select id="selectRoleByName" resultType="com.chinasofti.vo.xitong.Role">
+      select er.role_id from employee e,employee_role er
+      where e.employee_id=er.employee_id and e.employee_loginname=#{0}
+    </select>
+    
+    <select id="selectsysByRole">
+     select * from startclass 
+     <choose>
+       <when test="role_id==1">
+         where STARTCLASS_TEACHER=#{r}
+       </when>
+       <when test="role_id==2">
+         where STARTCLASS_CLASSTUTOR=#{r}
+       </when>
+       <when test="role_id==3">
+         where STARTCLASS_TEAHINGASSIENT=#{r}
+       </when>
+       <otherwise>
+         where 1=1
+       </otherwise>
+     </choose>
+    </select>
+    
+    <select id="selectBYIDBYName" resultType="com.chinasofti.vo.employee.Employee">
+      select employee_id from employee where employee_loginname=#{0}
+    </select>
+    
+    <delete id="deleteClassCourseBYSYSiD">
+      delete from classcourse where coursesys_id=#{0}
+    </delete>
+</mapper>

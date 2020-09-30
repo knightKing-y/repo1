@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasofti.dao.jiaoshi.classDaoInf">
+
+      <select id="shoeClass" resultType="com.chinasofti.vo.jiaoshi.JiaoShi">
+      select j.*,a.area_name area_name from jiaoshi j,area a
+      where a.area_id=j.area_id
+      </select>
+      
+      <insert id="addJiaoShi" parameterType="com.chinasofti.vo.jiaoshi.JiaoShi">
+		<selectKey resultType="int" keyProperty="class_id" order="BEFORE">
+			select
+			js_seq.nextVal
+			from dual
+		</selectKey>
+		insert into
+		jiaoshi
+		values(#{class_id},#{class_name},#{area_id},#{class_num},0)
+	</insert>
+	
+	<select id="SelectClassBYID" parameterType="int" resultType="com.chinasofti.vo.jiaoshi.JiaoShi">
+	  select j.*,a.area_name area_name from jiaoshi j,area a
+      where a.area_id=j.area_id and j.class_id=#{0}
+	</select>
+	
+	<update id="updateclass" parameterType="com.chinasofti.vo.jiaoshi.JiaoShi">
+	  update jiaoshi set class_name=#{class_name},area_id=#{area_id},
+	  class_num=#{class_num},status=#{status}
+	  where class_id=#{class_id}
+	</update>
+	
+	<select id="mhselectclass" parameterType="int" resultType="com.chinasofti.vo.jiaoshi.JiaoShi">
+	  select j.*,a.area_name area_name from jiaoshi j,area a
+      where a.area_id=j.area_id and j.area_id=#{0}
+	</select>
+	
+	<delete id="deleteclass" parameterType="int">
+	  delete from jiaoshi where class_id=#{0}
+	</delete>
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasofti.dao.quyu.PositionDaoInf">
+
+	<insert id="addPosition" parameterType="com.chinasofti.vo.quyu.Position">
+		<selectKey resultType="int" keyProperty="position_id" order="BEFORE">
+			select
+			position_seq.nextVal
+			from dual
+		</selectKey>
+		insert into Position
+		values (#{position_id},#{department_id},#{position_name,jdbcType=VARCHAR})
+
+	</insert>
+
+
+	<select id="selectPosition" resultType="com.chinasofti.vo.quyu.Position">
+		select
+		p.*,a.area_name,d.department_name
+		from DEPARTMENT d,area a,POSITION p
+		where d.area_id=a.area_id and d.department_id=p.department_id
+	</select>
+	
+	
+		<select id="selectPositionByInfo" resultType="com.chinasofti.vo.quyu.Position"  parameterType="com.chinasofti.vo.quyu.Position" >
+		select
+		p.*,a.area_name,d.department_name
+		from DEPARTMENT d,area a,POSITION p
+		where d.area_id=a.area_id and d.department_id=p.department_id
+	
+	      <if test="area_id  != 0">
+	             and d.area_id = #{area_id}  
+	      </if>
+		    <if test="department_id  !=  0">
+		            and p.department_id = #{department_id}
+      	  </if>
+	</select>
+
+	<select id="selectPositionByid" resultType="com.chinasofti.vo.quyu.Position"
+		parameterType="int">
+		select p.*,a.area_id
+		from Position p,DEPARTMENT d,area a
+		where p.department_id=d.department_id and
+		d.area_id=a.area_id and p.position_id=#{position_id}
+	</select>
+
+	<update id="updatePosition" parameterType="com.chinasofti.vo.quyu.Position">
+		update Position
+		set
+		position_id = #{position_id},department_id = #{department_id},
+		position_name = #{position_name}
+		where position_id = #{position_id}
+	</update>
+
+
+	<select id="selectDepartmentByAreaid" parameterType="int"
+		resultType="com.chinasofti.vo.quyu.Department">
+		select d.*
+		from DEPARTMENT d,area a
+		where d.area_id=a.area_id and a.area_id= #{area_id}
+	</select>
+
+
+	
+	
+
+
+</mapper>
